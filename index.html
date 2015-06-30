@@ -1,0 +1,405 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf8">
+	<title>无名音乐电台---好音乐|精品老音乐|不定期更新|一切尽在无名音乐电台</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<link rel="stylesheet" href="css/stylesheets/style.css">
+	<meta name="description" content="一个人，每天十分钟，静静的聆听……"/>
+	<meta name="author" content="i@wmkjlm.com"/>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/modernizr.custom.21750.js"></script>
+	<noscript>
+            <style>
+                .bx-loading{display:none;}
+            </style>
+	</noscript>
+</head>
+<body>
+<div id="bx-wrapper" class="bx-wrapper">
+                <div class="bx-loading">
+                    <span>Loading...</span>
+                </div>
+				<div class="bx-container">
+                    <img src="images/large/7.jpg" alt="image07" title="Aroma Paradise"/>
+                    <img src="images/large/6.jpg" alt="image06" title="Tenderness"/>
+                    <img src="images/large/5.jpg" alt="image05" title="Flavour Bomb"/>
+                    <img src="images/large/4.jpg" alt="image04" title="Crunchbite"/>
+                    <img src="images/large/3.jpg" alt="image03" title="Freshness"/>
+                    <img src="images/large/2.jpg" alt="image02" title="Raw Love"/>
+                    <img src="images/large/1.jpg" alt="image01" title="Shushi Town"/>
+					<img src="images/large/8.jpg" alt="image07" title="Aroma Paradise"/>
+					<img src="images/large/9.jpg" alt="image07" title="Aroma Paradise"/>
+					<img src="images/large/10.jpg" alt="image07" title="Aroma Paradise"/>
+					<img src="images/large/11.jpg" alt="image07" title="Aroma Paradise"/>
+					<img src="images/large/12.jpg" alt="image07" title="Aroma Paradise"/>
+					<img src="images/large/13.jpg" alt="image07" title="Aroma Paradise"/>
+					<img src="images/large/14.jpg" alt="image07" title="Aroma Paradise"/>
+					<img src="images/large/15.jpg" alt="image07" title="Aroma Paradise"/>
+				</div>
+                <div class="bx-overlay"></div>
+			</div>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+		<script type="text/javascript" src="js/StackBlur.js"></script>
+        <script type="text/javascript">
+            $(function() {
+				
+				var BlurBGImage	= (function() {
+					
+					var $bxWrapper			= $('#bx-wrapper'),
+						// loading status to show while preloading images
+						$bxLoading			= $bxWrapper.find('div.bx-loading'),
+						// container for the bg images and respective canvas
+						$bxContainer		= $bxWrapper.find('div.bx-container'),
+						// the bg images we are gonna use
+						$bxImgs				= $bxContainer.children('img'),
+						// total number of bg images
+						bxImgsCount			= $bxImgs.length,
+						// current image's index
+						current				= 0,
+						// variation to show the image:
+						// (1) - blurs the current one, fades out and shows the next image
+						// (2) - blurs the current one, fades out, shows the next one (but initially blurred)
+						// speed is the speed of the animation
+						// blur Factor is the factor used in the StackBlur script
+						animOptions			= { speed : 700, variation : 2, blurFactor : 10 },
+						// control if currently animating
+						isAnim				= false,
+						// check if canvas is supported
+						supportCanvas 		= Modernizr.canvas,
+						// slideshow
+						slideshow_interval	= 7000,
+						
+						// init function
+						init				= function() {
+							
+							// preload all images and respective canvas
+							var loaded = 0;
+							
+							$bxImgs.each( function(i) {
+								
+								var $bximg	= $(this);
+								
+								// save the position of the image in data-pos
+								$('<img data-pos="' + $bximg.index() + '"/>').load(function() {
+									
+									var $img	= $(this),
+										// size of image to be fullscreen and centered
+										dim		= getImageDim( $img.attr('src') ),
+										pos		= $img.data( 'pos' );
+									
+									// add the canvas to the DOM
+									$.when( createCanvas( pos, dim ) ).done( function() {
+											
+										++loaded;
+										
+										// all images and canvas loaded
+										if( loaded === bxImgsCount ) {
+											
+											// apply style for bg image and canvas
+											centerImageCanvas();
+											
+											// hide loading status
+											$bxLoading.hide();
+											
+											// initialize events
+											initEvents();
+											
+											// start slideshow
+											startSlideshow();
+											
+										}
+										
+									});
+								
+								}).attr( 'src', $bximg.attr('src') );
+							
+							});
+							
+						},
+						startSlideshow		= function() {
+							
+							slideshow_time = setTimeout( function() {
+								
+								if( !isAnim ) {
+									
+									var pos = current;
+									( pos < bxImgsCount - 1 ) ? ++pos : pos = 0;
+									isAnim = false;
+									// show the bg image
+									showImage( pos );
+									startSlideshow();
+								
+								}
+							
+							}, slideshow_interval );
+							
+						},
+						// creates the blurred canvas image
+						createCanvas		= function( pos, dim ) {
+							
+							return $.Deferred( function(dfd) {
+								
+								// if canvas not supported return
+								if( !supportCanvas ) {
+									dfd.resolve();
+									return false;
+								}	
+								
+								// create the canvas element:
+								// size and position will be the same like the fullscreen image
+								var $img	= $bxImgs.eq( pos ),
+									imgW	= dim.width,
+									imgH	= dim.height,
+									imgL	= dim.left,
+									imgT	= dim.top,
+									
+									canvas	= document.createElement('canvas');
+								
+								canvas.className		= 'bx-canvas';
+								canvas.width 			= imgW;
+								canvas.height 			= imgH;
+								canvas.style.width  	= imgW + 'px';
+								canvas.style.height 	= imgH + 'px';
+								canvas.style.left		= imgL + 'px';
+								canvas.style.top		= imgT + 'px';
+								canvas.style.visibility = 'hidden';
+								// save position of canvas to know which image this is linked to
+								canvas.setAttribute('data-pos', pos);
+								// append the canvas to the same container where the images are
+								$bxContainer.append( canvas );
+								// blur it using the StackBlur script
+								stackBlurImage( $img.get(0), dim, canvas, animOptions.blurFactor, false, dfd.resolve );
+							
+							}).promise();
+								
+						},
+						// gets the image size and position in order to make it fullscreen and centered.
+						getImageDim			= function( img ) {
+							
+							var $img    = new Image();
+							
+							$img.src    = img;
+							
+							var $win	= $( window ),
+								w_w		= $win.width(),
+								w_h		= $win.height(),
+								r_w		= w_h / w_w,
+								i_w		= $img.width,
+								i_h		= $img.height,
+								r_i		= i_h / i_w,
+								new_w, new_h, new_left, new_top;
+									
+							if( r_w > r_i ) {
+								
+								new_h	= w_h;
+								new_w	= w_h / r_i;
+							
+							}
+							else {
+							
+								new_h	= w_w * r_i;
+								new_w	= w_w;
+							
+							}
+									
+							return {
+								width	: new_w,
+								height	: new_h,
+								left	: ( w_w - new_w ) / 2,
+								top		: ( w_h - new_h ) / 2
+							};
+						
+						},
+						// initialize the events
+						initEvents			= function() {
+							
+							$( window ).on('resize.BlurBGImage', function( event ) {
+								
+								// apply style for bg image and canvas
+								centerImageCanvas();
+								return false;
+								
+							});
+							
+						},
+						// apply style for bg image and canvas
+						centerImageCanvas	= function() {
+							
+							$bxImgs.each( function(i) {
+								
+								var $bximg	= $(this),
+									dim			= getImageDim( $bximg.attr('src') ),
+									$currCanvas	= $bxContainer.children('canvas[data-pos=' + $bximg.index() + ']'),
+									styleCSS	= {
+										width	: dim.width,
+										height	: dim.height,
+										left	: dim.left,
+										top		: dim.top
+									};	
+								
+								$bximg.css( styleCSS );
+								
+								if( supportCanvas )
+									$currCanvas.css( styleCSS );
+									
+								if( i === current )	
+									$bximg.show();
+								
+							});
+							
+						},
+						// shows the image at position "pos"
+						showImage			= function( pos ) {
+								
+								// current image 
+							var $bxImage		= $bxImgs.eq( current );
+								// current canvas
+								$bxCanvas		= $bxContainer.children('canvas[data-pos=' + $bxImage.index() + ']'),
+								// next image to show
+								$bxNextImage	= $bxImgs.eq( pos ),
+								// next canvas to show
+								$bxNextCanvas	= $bxContainer.children('canvas[data-pos='+$bxNextImage.index()+']');
+							
+							// if canvas is supported
+							if( supportCanvas ) {
+								
+								$bxCanvas.css( 'z-index', 100 ).css('visibility','visible');
+								
+								$.when( $bxImage.fadeOut( animOptions.speed ) ).done( function() {
+									
+									switch( animOptions.variation ) {
+									
+										case 1 	:
+											$.when( $bxNextImage.fadeIn( animOptions.speed ) ).done( function() {
+										
+												$bxCanvas.css( 'z-index', 1 ).css('visibility','hidden');
+												current = pos;
+												$bxNextCanvas.css('visibility','hidden');
+												isAnim 	= false;
+											
+											});
+											break;
+										case 2	:
+											$bxNextCanvas.css('visibility','visible');
+											
+											$.when( $bxCanvas.fadeOut( animOptions.speed * 1.5 ) ).done( function() {
+											
+												$(this).css({
+													'z-index' 		: 1,
+													'visibility'	: 'hidden'
+												}).show();
+												
+												$.when( $bxNextImage.fadeIn( animOptions.speed ) ).done( function() {
+													
+													current = pos;
+													$bxNextCanvas.css('visibility','hidden');
+													isAnim 	= false;
+												
+												});
+												
+											});
+											break;
+									
+									};
+									
+								});
+							
+							}
+							// if canvas is not shown just work with the bg images
+							else {
+							
+								$.when( $bxNextImage.css( 'z-index', 102 ).fadeIn( animOptions.speed ) ).done( function() {
+									
+									current = pos;
+									$bxImage.hide();
+									$(this).css( 'z-index', 101 );
+									isAnim = false;
+								
+								});
+							
+							}
+						
+						};
+						
+					return {
+						init	: init
+					};
+				
+				})();
+				
+				// call the init function
+				BlurBGImage.init();
+				
+            });
+        </script>
+
+
+	<div id="player">
+		<div class="cover"></div>
+		<div class="ctrl">
+			<div class="tag">
+				<strong>Title</strong>
+				<span class="artist">Artist</span>
+				<span class="album">Album</span>
+			</div>
+			<div class="control">
+				<div class="left">
+					<div class="rewind icon"></div>
+					<div class="playback icon"></div>
+					<div class="fastforward icon"></div>
+				</div>
+				<div class="volume right">
+					<div class="mute icon left"></div>
+					<div class="slider left">
+						<div class="pace"></div>
+					</div>
+				</div>
+			</div>
+			<div class="progress">
+				<div class="slider">
+					<div class="loaded"></div>
+					<div class="pace"></div>
+				</div>
+				<div class="timer left">0:00</div>
+				<div class="right">
+					<div class="repeat icon"></div>
+					<div class="shuffle icon"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<ul id="playlist"></ul>
+	
+	
+	<footer>
+
+<p>Copyright @ 2013-2015 BY：无名 （无名科技）</p>
+		
+		<br><p>无名音乐电台|不定期更新好音乐|精品音乐</p>
+		
+		<br><p>如果觉得本页好，记得点击网站侧面的分享按钮哦</p>
+<br>
+<p><a href="./tougao.html">你有好音乐分享吗？请点击</a> <a href="./tougao.html">在线投稿</a></p>
+	</footer>
+	<script src="js/jquery-ui-1.8.17.custom.min.js"></script>
+	<script src="js/script.js"></script>
+
+
+
+
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=slide&amp;img=4&amp;pos=left&amp;uid=0" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+var bds_config={"bdTop":216};
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000);
+</script>
+<!-- Baidu Button END -->
+
+
+
+
+</body>
+</html>
