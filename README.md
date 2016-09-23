@@ -1,3 +1,8 @@
+Online Music Play Project made in Gr. 7.
+
+- HTML5 support required.
+<br />
+
 两年前写的东西（当时还是初一 写的比较烂 轻喷）...这几天翻到了就传上来好了
 
 <br />
